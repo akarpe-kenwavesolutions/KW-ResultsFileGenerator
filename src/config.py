@@ -1,5 +1,6 @@
 import os
 
+
 class Config:
     # ---------------------------------------------------------
     # DIRECTORIES
@@ -22,32 +23,37 @@ class Config:
     TEMPLATE_PATH = None
 
     # ---------------------------------------------------------
-    # EXCEL REPORT HEADER SETTINGS (from KW-Results-RJN-Lake-Forest-Draft.xlsx)
+    # EXCEL REPORT HEADER SETTINGS (STATIC - no changes needed)
     # ---------------------------------------------------------
-    # --- Cell coordinates for WRITING VALUES ---
-    ROW_SITE_NAME = 1  # Example: 'LakeForest-Waukegan' in A1 or merged cell
+    ROW_SITE_NAME = 1
     COL_SITE_NAME = 1
-    ROW_START_AP_VAL = 6  # Value for Start AP in B6
+
+    # Pipe Type Display Area (Top Right)
+    ROW_PIPE_TYPE_LABEL = 5  # Row for "Pipe Type" label (column F)
+    COL_PIPE_TYPE_LABEL = 6  # Column F for "Pipe Type" label
+    COL_PIPE_TYPE = 7  # Column G for pipe types
+
+    # Access Point IDs and Resolution (STATIC)
+    ROW_START_AP_VAL = 6
     COL_START_AP_VAL = 2
-    ROW_END_AP_VAL = 6  # Value for End AP in C6
+    ROW_END_AP_VAL = 6
     COL_END_AP_VAL = 3
-    ROW_PIPE_TYPE_VAL = 5  # Value for Pipe Type in G5
-    COL_PIPE_TYPE_VAL = 7
-    ROW_RESOLUTION_VAL = 6  # Value for Resolution in G6
+    ROW_RESOLUTION_VAL = 6
     COL_RESOLUTION_VAL = 7
-    ROW_DATE = 1  # Placeholder
+
+    ROW_DATE = 1
     COL_DATE = 1
 
     # ---------------------------------------------------------
-    # EXCEL REPORT DATA TABLE SETTINGS
+    # EXCEL REPORT DATA TABLE SETTINGS (STATIC)
     # ---------------------------------------------------------
-    TABLE_HEADER_ROW = 8  # "Access Points", "Start (ft)" headers are on Row 8
-    DATA_START_ROW = 9  # Actual data begins on Row 9
+    TABLE_HEADER_ROW = 8  # "Access Points", "Start (ft)" headers row
+    DATA_START_ROW = 9  # Actual data row
 
     # Columns (1-based index)
     COL_ACCESS_POINT_LBL = 1  # A: Access Points
-    COL_START_FT = 2  # B: Start (ft)
-    COL_END_FT = 3  # C: End (ft)
+    COL_START_FT = 2  # B: Start (ft) or Start (m)
+    COL_END_FT = 3  # C: End (ft) or End (m)
     COL_DRI_THICKNESS = 5  # E: DRI Thickness
     COL_NOM_THICKNESS = 6  # F: Nominal Thickness
     COL_ASSET_ID = 7  # G: Pipe Asset ID
@@ -55,7 +61,7 @@ class Config:
     # ---------------------------------------------------------
     # LOGIC & CSV KEYS
     # ---------------------------------------------------------
-    REQUIRE_ASSET_IDS = True  # Will be set by user prompt
+    REQUIRE_ASSET_IDS = True
 
     KEY_META_AP1 = 'Access Point 1'
     KEY_META_AP2 = 'Access Point 2'
