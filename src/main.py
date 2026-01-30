@@ -4,10 +4,9 @@ from generator import ResultsGenerator
 from data_loader import DataLoader
 from config import Config
 
-
 def main():
     print("=" * 60)
-    print(" PIPELINE RESULTS GENERATOR ")
+    print("         PIPELINE RESULTS GENERATOR          ")
     print("=" * 60)
 
     # 1. Project Setup
@@ -19,23 +18,35 @@ def main():
     # Update Config paths dynamically
     Config.set_project(project_name)
 
-    # 2. Initialize Loader
-    # (It now reads files from projects/{name}/input)
+    # 2. Ask about Pipe Asset IDs BEFORE loading data
+    print("\n--- Pipe Asset IDs Configuration ---")
+    while True:
+        asset_response = input("Include Pipe Asset IDs in this project? [y/n]: ").strip().lower()
+        if asset_response in ['y', 'yes']:
+            Config.REQUIRE_ASSET_IDS = True
+            print(">> Pipe Asset IDs will be included.")
+            break
+        elif asset_response in ['n', 'no']:
+            Config.REQUIRE_ASSET_IDS = False
+            print(">> Pipe Asset IDs will be excluded.")
+            break
+        else:
+            print("Invalid input. Please enter 'y' or 'n'.")
+
+    # 3. Initialize Loader (now it knows whether to require asset file)
     loader = DataLoader()
 
     try:
-        # 3. Load Data
+        # 4. Load Data
         data = loader.load_data()
-
         if not data:
             print("[WARNING] No data found or Group processing failed.")
             return
 
-        # 4. Initialize Generator
-        # Pass project name explicitly to handle filename generation
+        # 5. Initialize Generator
         generator = ResultsGenerator(project_name=project_name)
 
-        # 5. Run Generation
+        # 6. Run Generation
         generator.run(data)
 
     except FileNotFoundError as e:
@@ -46,7 +57,6 @@ def main():
         print(f"\n[CRITICAL ERROR] {e}")
         import traceback
         traceback.print_exc()
-
 
 if __name__ == "__main__":
     main()

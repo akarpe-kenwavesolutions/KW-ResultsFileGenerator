@@ -1,6 +1,5 @@
 import os
 
-
 class Config:
     # ---------------------------------------------------------
     # DIRECTORIES
@@ -28,19 +27,14 @@ class Config:
     # --- Cell coordinates for WRITING VALUES ---
     ROW_SITE_NAME = 1  # Example: 'LakeForest-Waukegan' in A1 or merged cell
     COL_SITE_NAME = 1
-
     ROW_START_AP_VAL = 6  # Value for Start AP in B6
     COL_START_AP_VAL = 2
-
     ROW_END_AP_VAL = 6  # Value for End AP in C6
     COL_END_AP_VAL = 3
-
     ROW_PIPE_TYPE_VAL = 5  # Value for Pipe Type in G5
     COL_PIPE_TYPE_VAL = 7
-
     ROW_RESOLUTION_VAL = 6  # Value for Resolution in G6
     COL_RESOLUTION_VAL = 7
-
     ROW_DATE = 1  # Placeholder
     COL_DATE = 1
 
@@ -61,7 +55,8 @@ class Config:
     # ---------------------------------------------------------
     # LOGIC & CSV KEYS
     # ---------------------------------------------------------
-    REQUIRE_ASSET_IDS = True
+    REQUIRE_ASSET_IDS = True  # Will be set by user prompt
+
     KEY_META_AP1 = 'Access Point 1'
     KEY_META_AP2 = 'Access Point 2'
     KEY_META_MAT = 'Material'
@@ -80,7 +75,8 @@ class Config:
         elif os.path.exists(os.path.join(cls.PROJECTS_ROOT, project_identifier)):
             cls.PROJECT_DIR = os.path.join(cls.PROJECTS_ROOT, project_identifier)
         else:
-            if not os.path.exists(cls.PROJECTS_ROOT): cls.PROJECTS_ROOT = os.path.join(cls.BASE_DIR, 'input')
+            if not os.path.exists(cls.PROJECTS_ROOT):
+                cls.PROJECTS_ROOT = os.path.join(cls.BASE_DIR, 'input')
             candidates = [d for d in os.listdir(cls.PROJECTS_ROOT) if project_identifier.lower() in d.lower()]
             if len(candidates) == 1:
                 cls.PROJECT_DIR = os.path.join(cls.PROJECTS_ROOT, candidates[0])
@@ -89,7 +85,8 @@ class Config:
 
         cls.INPUT_DIR = os.path.join(cls.PROJECT_DIR, 'input')
         cls.OUTPUT_DIR = os.path.join(cls.PROJECT_DIR, 'output')
-        if not os.path.exists(cls.OUTPUT_DIR): os.makedirs(cls.OUTPUT_DIR)
+        if not os.path.exists(cls.OUTPUT_DIR):
+            os.makedirs(cls.OUTPUT_DIR)
 
         cls.FILE_SEG_DF = cls.find_input_file(cls.INPUT_DIR, 'seg_df')
         cls.FILE_PIPE_ASSETS = cls.find_input_file(cls.INPUT_DIR, 'pipe_asset_ids_df')
@@ -100,7 +97,8 @@ class Config:
     def find_input_file(cls, directory, keyword, extensions=['.csv']):
         try:
             for f in os.listdir(directory):
-                if any(f.endswith(ext) for ext in extensions) and keyword.lower() in f.lower(): return os.path.join(
-                    directory, f)
+                if any(f.endswith(ext) for ext in extensions) and keyword.lower() in f.lower():
+                    return os.path.join(directory, f)
+            return None
         except:
             return None
