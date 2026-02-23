@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa60da94-350b-4d05-8724-c0b321a8b159" name="Changes" comment="Unit prompts and Pipe asset ID prompts are added.&#10;&#10;Next step, remove the need for pipe asset IDs">
+    <list default="true" id="aa60da94-350b-4d05-8724-c0b321a8b159" name="Changes" comment="Added better unit handling, updated pipe spec change logic.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/data_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/data_loader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/generator.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,15 +35,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.chart_manager.executor": "Run",
+    "Python.data_loader.executor": "Run",
+    "Python.generator.executor": "Run",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -83,13 +86,31 @@
       <option name="project" value="LOCAL" />
       <updated>1766100715771</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Checks first for pipe_asset_id requirement from user before checking for presence of file.&#10;&#10;Next step, remove the need for pipe asset IDs">
+      <option name="closed" value="true" />
+      <created>1769792634719</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1769792634719</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Added better unit handling, updated pipe spec change logic.">
+      <option name="closed" value="true" />
+      <created>1769799303447</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1769799303447</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="2nd commit, mostly works with correct step sizes, pipe asset IDs, and correct lengths. Verify for correct access point names and locations.&#10;&#10;There are trailing points and formatting is off. but it mostly works." />
     <MESSAGE value="Formatting fixed, access points seem good. &#10;&#10;Unit prompts and Pipe asset ID prompts are gone though" />
     <MESSAGE value="Unit prompts and Pipe asset ID prompts are added.&#10;&#10;Next step, remove the need for pipe asset IDs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Unit prompts and Pipe asset ID prompts are added.&#10;&#10;Next step, remove the need for pipe asset IDs" />
+    <MESSAGE value="Checks first for pipe_asset_id requirement from user before checking for presence of file.&#10;&#10;Next step, remove the need for pipe asset IDs" />
+    <MESSAGE value="Added better unit handling, updated pipe spec change logic." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added better unit handling, updated pipe spec change logic." />
   </component>
 </project>

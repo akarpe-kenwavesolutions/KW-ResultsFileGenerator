@@ -28,6 +28,18 @@ class DataLoader:
                 if col.lower() == cand.lower(): return col
         return None
 
+    def _format_ap_name(self, val):
+        """Parse access point names as strings, removing decimal points from numeric values."""
+        if val is None:
+            return None
+        try:
+            f = float(val)
+            if f == int(f):
+                return str(int(f))
+            return str(f)
+        except (ValueError, TypeError):
+            return str(val)
+
     def _order_segments_for_group(self, df_seg_meta, segment_codes):
         """
         Orders segments based on start and end positions.
@@ -312,8 +324,9 @@ class DataLoader:
             # --- E. Grid Generation ---
             site_dict = {
                 'site_name': str(group_id),
-                'ap_id_1': unique_aps[0][1] if unique_aps else '',
-                'ap_id_2': unique_aps[-1][1] if unique_aps else '',
+                'ap_id_1': self._format_ap_name(unique_aps[0][1]) if unique_aps else '',
+                'ap_id_2': self._format_ap_name(unique_aps[-1][1]) if unique_aps else '',
+
                 'pipe_type': pipe_type,
                 'pipe_specs_list': pipe_specs_list,  # NEW: List of all pipe specs
                 'resolution': 'Standard',
@@ -365,7 +378,8 @@ class DataLoader:
                     if not match.empty:
                         pipe_asset_id = match.iloc[0][asset_id_col]
 
-                ap_col_val = " / ".join(slice_labels) if slice_labels else None
+                ap_col_val = " / ".join(self._format_ap_name(name) for name in slice_labels) if slice_labels else None
+
 
                 segment_slice = {
                     'start_m': start_m,  # Metric

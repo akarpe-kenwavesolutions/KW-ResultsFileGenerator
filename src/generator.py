@@ -73,6 +73,18 @@ class ResultsGenerator:
         result = f"{formatted_diameter} {material_str}".strip()
         return result
 
+    def _format_ap_name(self, val):
+        """Parse access point names as strings, removing decimal points from numeric values."""
+        if val is None:
+            return None
+        try:
+            f = float(val)
+            if f == int(f):
+                return str(int(f))
+            return str(f)
+        except (ValueError, TypeError):
+            return str(val)
+
     def process_site(self, site_data):
         site_name = self._sanitize_sheet_name(site_data.get('site_name', 'Unknown'))
         print(f"Processing Sheet: {site_name}")
@@ -119,8 +131,9 @@ class ResultsGenerator:
         row_end_ap = Config.ROW_END_AP_VAL + num_rows_to_insert
         row_resolution = Config.ROW_RESOLUTION_VAL + num_rows_to_insert
 
-        ws_new.cell(row=row_start_ap, column=Config.COL_START_AP_VAL).value = site_data.get('ap_id_1')
-        ws_new.cell(row=row_end_ap, column=Config.COL_END_AP_VAL).value = site_data.get('ap_id_2')
+        ws_new.cell(row=row_start_ap, column=Config.COL_START_AP_VAL).value = self._format_ap_name(site_data.get('ap_id_1'))
+        ws_new.cell(row=row_end_ap, column=Config.COL_END_AP_VAL).value = self._format_ap_name(site_data.get('ap_id_2'))
+
         ws_new.cell(row=row_resolution, column=Config.COL_RESOLUTION_VAL).value = site_data.get('resolution')
 
         table_header_row = Config.TABLE_HEADER_ROW + num_rows_to_insert
