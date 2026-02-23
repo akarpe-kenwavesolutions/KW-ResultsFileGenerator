@@ -191,6 +191,87 @@ class DataLoader:
 
         return deduplicated
 
+    def _extract_pipe_spec_transitions(self, df_seg_meta, segment_codes):
+        """
+        Returns list of (absolute_position, diameter, material) sorted by position.
+        Used to look up pipe spec at any given location along the pipeline.
+        """
+        group_segs = df_seg_meta[df_seg_meta['Unnamed: 0'].isin(segment_codes)].copy()
+        if group_segs.empty:
+            return []
+
+        df_working = group_segs[['Unnamed: 0', 'ap_1_loc', 'ap_2_loc']].copy()
+        df_working.columns = ['Segment', 'Start_Pos', 'End_Pos']
+        df_working = df_working.dropna(subset=['Start_Pos', 'End_Pos'])
+        if df_working.empty:
+            return []
+
+        df_sorted = df_working.sort_values(['Start_Pos', 'End_Pos'], ascending=[True, True])
+        ordered_segment_ids = df_sorted['Segment'].tolist()
+
+        transitions = []
+
+        for seg_id in ordered_segment_ids:
+            seg_row = df_seg_meta[df_seg_meta['Unnamed: 0'] == seg_id]
+            if seg_row.empty:
+                continue
+
+            row = seg_row.iloc[0]
+            seg_start_pos = row.get('ap_1_loc')
+            if pd.isna(seg_start_pos):
+                continue
+            seg_start_pos = float(seg_start_pos)
+
+            diameter_raw = self._get_val_robust(row, [Config.KEY_META_DIA, 'diameter', 'Diameter'])
+            material_raw = self._get_val_robust(row, [Config.KEY_META_MAT, 'material', 'Material'])
+            ps_change_locs_raw = row.get('ps_change_locs')
+
+            diameters = [d.strip() for d in str(diameter_raw).split('/')] if diameter_raw else []
+            materials = [m.strip() for m in str(material_raw).split('/')] if material_raw else []
+
+            # Format diameters
+            formatted_diameters = []
+            for dia in diameters:
+                try:
+                    dia_float = float(dia)
+                    formatted_diameters.append(str(int(dia_float)) if dia_float == int(dia_float) else dia)
+                except:
+                    formatted_diameters.append(dia)
+
+            change_positions = []
+            if pd.notna(ps_change_locs_raw) and str(ps_change_locs_raw).strip():
+                ps_str = str(ps_change_locs_raw)
+                try:
+                    change_positions = [float(x.strip()) for x in ps_str.split(',')] if ',' in ps_str else [
+                        float(ps_str)]
+                except:
+                    pass
+
+            if not change_positions:
+                if formatted_diameters and materials:
+                    transitions.append((seg_start_pos, formatted_diameters[0], materials[0]))
+            else:
+                if formatted_diameters and materials:
+                    transitions.append((seg_start_pos, formatted_diameters[0], materials[0]))
+                for i, rel_pos in enumerate(change_positions):
+                    abs_pos = seg_start_pos + rel_pos
+                    idx = i + 1
+                    if idx < len(formatted_diameters) and idx < len(materials):
+                        transitions.append((abs_pos, formatted_diameters[idx], materials[idx]))
+
+        transitions.sort(key=lambda x: x[0])
+
+        # Deduplicate consecutive same specs
+        deduped = []
+        prev = None
+        for t in transitions:
+            spec = (t[1], t[2])
+            if spec != prev:
+                deduped.append(t)
+                prev = spec
+
+        return deduped
+
     def load_seg_groups(self):
         if not self.seg_groups_path: return None
         try:
@@ -231,6 +312,127 @@ class DataLoader:
             pass
         return {}
 
+    def _format_ap_name(self, val):
+        """Parse access point names as strings, removing decimal points from numeric values."""
+        if val is None:
+            return None
+        try:
+            f = float(val)
+            if f == int(f):
+                return str(int(f))
+            return str(f)
+        except (ValueError, TypeError):
+            return str(val)
+
+    def _extract_pipe_spec_transitions(self, df_seg_meta, segment_codes):
+        """
+        Returns list of (absolute_position, diameter, material) sorted by position.
+        Used to look up pipe spec at any given location along the pipeline.
+        """
+        group_segs = df_seg_meta[df_seg_meta['Unnamed: 0'].isin(segment_codes)].copy()
+        if group_segs.empty:
+            return []
+
+        df_working = group_segs[['Unnamed: 0', 'ap_1_loc', 'ap_2_loc']].copy()
+        df_working.columns = ['Segment', 'Start_Pos', 'End_Pos']
+        df_working = df_working.dropna(subset=['Start_Pos', 'End_Pos'])
+        if df_working.empty:
+            return []
+
+        df_sorted = df_working.sort_values(['Start_Pos', 'End_Pos'], ascending=[True, True])
+        ordered_segment_ids = df_sorted['Segment'].tolist()
+
+        transitions = []
+
+        for seg_id in ordered_segment_ids:
+            seg_row = df_seg_meta[df_seg_meta['Unnamed: 0'] == seg_id]
+            if seg_row.empty:
+                continue
+
+            row = seg_row.iloc[0]
+            seg_start_pos = row.get('ap_1_loc')
+            if pd.isna(seg_start_pos):
+                continue
+            seg_start_pos = float(seg_start_pos)
+
+            diameter_raw = self._get_val_robust(row, [Config.KEY_META_DIA, 'diameter', 'Diameter'])
+            material_raw = self._get_val_robust(row, [Config.KEY_META_MAT, 'material', 'Material'])
+            ps_change_locs_raw = row.get('ps_change_locs')
+
+            diameters = [d.strip() for d in str(diameter_raw).split('/')] if diameter_raw else []
+            materials = [m.strip() for m in str(material_raw).split('/')] if material_raw else []
+
+            # Format diameters - remove .0
+            formatted_diameters = []
+            for dia in diameters:
+                try:
+                    dia_float = float(dia)
+                    formatted_diameters.append(str(int(dia_float)) if dia_float == int(dia_float) else dia)
+                except:
+                    formatted_diameters.append(dia)
+
+            change_positions = []
+            if pd.notna(ps_change_locs_raw) and str(ps_change_locs_raw).strip():
+                ps_str = str(ps_change_locs_raw)
+                try:
+                    change_positions = [float(x.strip()) for x in ps_str.split(',')] if ',' in ps_str else [
+                        float(ps_str)]
+                except:
+                    pass
+
+            if not change_positions:
+                if formatted_diameters and materials:
+                    transitions.append((seg_start_pos, formatted_diameters[0], materials[0]))
+            else:
+                if formatted_diameters and materials:
+                    transitions.append((seg_start_pos, formatted_diameters[0], materials[0]))
+                for i, rel_pos in enumerate(change_positions):
+                    abs_pos = seg_start_pos + rel_pos
+                    idx = i + 1
+                    if idx < len(formatted_diameters) and idx < len(materials):
+                        transitions.append((abs_pos, formatted_diameters[idx], materials[idx]))
+
+        transitions.sort(key=lambda x: x[0])
+
+        # Deduplicate consecutive same specs
+        deduped = []
+        prev = None
+        for t in transitions:
+            spec = (t[1], t[2])
+            if spec != prev:
+                deduped.append(t)
+                prev = spec
+
+        return deduped
+
+    def _get_pipe_type_for_range(self, transitions, start_m, end_m):
+        """
+        Returns (diameter, material) tuple for a given range.
+        Returns None if the pipe spec changes within this range (transition step).
+        """
+        if not transitions:
+            return None
+
+        spec_at_start = None
+        for (pos, dia, mat) in transitions:
+            if pos <= start_m:
+                spec_at_start = (dia, mat)
+            else:
+                break
+
+        spec_at_end = None
+        for (pos, dia, mat) in transitions:
+            if pos < end_m:
+                spec_at_end = (dia, mat)
+            else:
+                break
+
+        # If spec changes within this step, leave blank
+        if spec_at_start != spec_at_end:
+            return None
+
+        return spec_at_start  # e.g. ('300', 'AC')
+
     def load_data(self):
         # Validate required files
         missing_files = []
@@ -238,24 +440,21 @@ class DataLoader:
         if not self.seg_df_path:
             missing_files.append("Segment DF")
 
-        # Only require asset file if user requested pipe asset IDs
         if Config.REQUIRE_ASSET_IDS and not self.asset_path:
             missing_files.append("Asset IDs DF")
 
         if missing_files:
             raise FileNotFoundError(f"Missing Input Files:\n- " + "\n- ".join(missing_files))
 
-        # Load files
         print(f"Loading Metadata: {os.path.basename(self.seg_df_path)}")
 
-        # Only load asset file if it exists AND is required
         if self.asset_path and Config.REQUIRE_ASSET_IDS:
             print(f"Loading Assets: {os.path.basename(self.asset_path)}")
             df_assets = pd.read_csv(self.asset_path)
         else:
             if not Config.REQUIRE_ASSET_IDS:
                 print("Skipping Pipe Asset IDs (not required for this project)")
-            df_assets = pd.DataFrame()  # Empty dataframe
+            df_assets = pd.DataFrame()
 
         if self.seg_groups_path:
             print(f"Loading SegGroups: {os.path.basename(self.seg_groups_path)}")
@@ -278,13 +477,16 @@ class DataLoader:
             if group_meta_rows.empty:
                 continue
 
-            # --- NEW: Calculate ordered segment string ---
+            # --- B. Calculate ordered segment string ---
             ordered_segments = self._order_segments_for_group(df_seg_meta, segment_codes)
 
-            # --- NEW: Extract ALL pipe specs (not just first one) ---
+            # --- C. Extract ALL pipe specs (deduplicated, position-aware) ---
             pipe_specs_list = self._extract_all_pipe_specs(df_seg_meta, segment_codes)
 
-            # Pipe Type Extraction (for compatibility/fallback)
+            # --- D. Extract pipe spec transitions (for per-row pipe type lookup) ---
+            pipe_spec_transitions = self._extract_pipe_spec_transitions(df_seg_meta, segment_codes)
+
+            # Pipe Type fallback (for compatibility)
             pipe_type = "Unknown"
             best_dia = ""
             best_mat = ""
@@ -297,7 +499,7 @@ class DataLoader:
             if best_dia or best_mat:
                 pipe_type = f"{best_dia} {best_mat}".strip()
 
-            # --- B. Load Access Points (Source of Truth for Distances) ---
+            # --- E. Load Access Points ---
             ap_positions_dict = self.load_access_points_for_group(group_id)
             unique_aps = sorted([(pos, name) for name, pos in ap_positions_dict.items()], key=lambda x: x[0])
 
@@ -305,7 +507,7 @@ class DataLoader:
                 print(f"  Skipping {group_id} (No Access Points found)")
                 continue
 
-            # --- C. Load Assets (only if required) ---
+            # --- F. Load Assets (only if required) ---
             asset_group_col = None
             group_asset_rows = pd.DataFrame()
 
@@ -317,26 +519,25 @@ class DataLoader:
                     if not group_asset_rows.empty and start_col:
                         group_asset_rows = group_asset_rows.sort_values(by=start_col)
 
-            # --- D. Determine Exact End Point (Last AP Position) ---
+            # --- G. Determine Exact End Point ---
             last_ap_pos = unique_aps[-1][0]
             total_end_meters = last_ap_pos
 
-            # --- E. Grid Generation ---
+            # --- H. Build site dict ---
             site_dict = {
                 'site_name': str(group_id),
                 'ap_id_1': self._format_ap_name(unique_aps[0][1]) if unique_aps else '',
                 'ap_id_2': self._format_ap_name(unique_aps[-1][1]) if unique_aps else '',
-
                 'pipe_type': pipe_type,
-                'pipe_specs_list': pipe_specs_list,  # NEW: List of all pipe specs
+                'pipe_specs_list': pipe_specs_list,
                 'resolution': 'Standard',
-                'ordered_segments': ordered_segments,  # NEW: Add ordered segment string
+                'ordered_segments': ordered_segments,
                 'segments': []
             }
 
             num_steps = int(np.ceil(total_end_meters / self.INCREMENT_METERS))
 
-            # Find Asset Columns (only if we have asset data)
+            # Find Asset Columns
             asset_id_col = None
             start_col_asset = None
             end_col_asset = None
@@ -350,11 +551,10 @@ class DataLoader:
                 start_m = i * self.INCREMENT_METERS
                 end_m = (i + 1) * self.INCREMENT_METERS
 
-                # --- STORE BOTH UNITS ---
                 start_ft = start_m * self.FEET_PER_METER
                 end_ft = end_m * self.FEET_PER_METER
 
-                # 1. Labels
+                # 1. Access Point Labels
                 slice_labels = []
                 for ap_pos, ap_name in unique_aps:
                     if start_m <= ap_pos < end_m:
@@ -362,7 +562,7 @@ class DataLoader:
                     elif abs(ap_pos - end_m) < 0.05 and abs(ap_pos - total_end_meters) < 0.05:
                         slice_labels.append(ap_name)
 
-                # 2. Pipe Asset ID (only if required and data available)
+                # 2. Pipe Asset ID
                 pipe_asset_id = None
                 if not group_asset_rows.empty and start_col_asset and end_col_asset and asset_id_col:
                     midpoint_m = (start_m + end_m) / 2
@@ -378,31 +578,51 @@ class DataLoader:
                     if not match.empty:
                         pipe_asset_id = match.iloc[0][asset_id_col]
 
+                # 3. Format AP label
                 ap_col_val = " / ".join(self._format_ap_name(name) for name in slice_labels) if slice_labels else None
 
+                # 4. Pipe type for this step
+                pipe_type_step = self._get_pipe_type_for_range(pipe_spec_transitions, start_m, end_m)
 
                 segment_slice = {
-                    'start_m': start_m,  # Metric
-                    'end_m': end_m,  # Metric
-                    'start_ft': start_ft,  # Imperial
-                    'end_ft': end_ft,  # Imperial
+                    'start_m': start_m,
+                    'end_m': end_m,
+                    'start_ft': start_ft,
+                    'end_ft': end_ft,
                     'dri_thickness': None,
                     'nom_thickness': None,
                     'pipe_asset_id': pipe_asset_id,
-                    'access_point_label': ap_col_val
+                    'access_point_label': ap_col_val,
+                    'pipe_type_step': pipe_type_step,
                 }
 
                 site_dict['segments'].append(segment_slice)
 
-            # Ensure the very last label appears
+            # --- I. Ensure last AP label is placed ---
             if site_dict['segments'] and unique_aps:
-                last_ap_name = unique_aps[-1][1]
-                found = False
-                for s in site_dict['segments'][-2:]:
-                    if s['access_point_label'] and last_ap_name in s['access_point_label']:
-                        found = True
-                if not found:
-                    site_dict['segments'][-1]['access_point_label'] = last_ap_name
+                last_ap_name = self._format_ap_name(unique_aps[-1][1])
+                last_ap_pos = unique_aps[-1][0]
+
+                placed = False
+                for s in site_dict['segments']:
+                    if s['access_point_label'] and last_ap_name in str(s['access_point_label']):
+                        placed = True
+                        break
+
+                if not placed:
+                    # Find segment whose range contains the last AP position
+                    for s in site_dict['segments']:
+                        if s['start_m'] <= last_ap_pos <= s['end_m']:
+                            existing = s['access_point_label']
+                            s['access_point_label'] = f"{existing} / {last_ap_name}" if existing else last_ap_name
+                            placed = True
+                            break
+
+                    # Fallback: last segment
+                    if not placed:
+                        s = site_dict['segments'][-1]
+                        existing = s['access_point_label']
+                        s['access_point_label'] = f"{existing} / {last_ap_name}" if existing else last_ap_name
 
             grouped_data.append(site_dict)
 
