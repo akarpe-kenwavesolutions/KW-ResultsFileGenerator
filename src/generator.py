@@ -1,7 +1,7 @@
 import openpyxl
 import os
 import copy
-from openpyxl.styles import Font, Alignment
+from openpyxl.styles import Font, Alignment, PatternFill
 from config import Config
 from chart_manager import ChartManager
 
@@ -68,13 +68,9 @@ class ResultsGenerator:
             return val
 
     def _format_pipe_spec(self, diameter_str, material_str):
-        """
-        Format a single pipe spec with proper units.
-        Returns formatted string like "315mm PVC" or "12in PVC"
-        """
+        """Format a single pipe spec with proper units."""
         if not diameter_str and not material_str:
             return ""
-
         formatted_diameter = ""
         if diameter_str:
             try:
@@ -86,9 +82,7 @@ class ResultsGenerator:
                     formatted_diameter = f"{diameter_str}mm"
             except ValueError:
                 formatted_diameter = diameter_str
-
-        result = f"{formatted_diameter} {material_str}".strip()
-        return result
+        return f"{formatted_diameter} {material_str}".strip()
 
     def _format_step_pipe_type(self, spec_tuple):
         """
@@ -107,6 +101,16 @@ class ResultsGenerator:
         except:
             dia_formatted = dia
         return f"{dia_formatted} {mat}".strip()
+
+    def _get_col_letter(self, col_index):
+        """Convert 1-based column index to Excel column letter."""
+        from openpyxl.utils import get_column_letter
+        return get_column_letter(col_index)
+
+    def _get_gray_fill(self):
+        """Returns the gray fill matching Excel 'White, Background 1, Darker 15%'."""
+        # White Background 1 Darker 15% = #D9D9D9
+        return PatternFill(start_color="D9D9D9", end_color="D9D9D9", fill_type="solid")
 
     def process_site(self, site_data):
         site_name = self._sanitize_sheet_name(site_data.get('site_name', 'Unknown'))
@@ -165,8 +169,7 @@ class ResultsGenerator:
             ws_new.cell(row=table_header_row, column=Config.COL_START_FT).value = "Start (m)"
             ws_new.cell(row=table_header_row, column=Config.COL_END_FT).value = "End (m)"
 
-        # --- PIPE TYPE COLUMN HEADER ---
-        # Col H (8) if asset IDs included, Col G (7) if not
+        # --- PIPE TYPE COLUMN: Col H (8) if asset IDs included, Col G (7) if not ---
         pipe_type_col = Config.COL_ASSET_ID + 1 if Config.REQUIRE_ASSET_IDS else Config.COL_ASSET_ID
 
         if not Config.REQUIRE_ASSET_IDS:
@@ -184,6 +187,13 @@ class ResultsGenerator:
                 ws_new.cell(row=r, column=c).value = None
 
         center_align = Alignment(horizontal='center')
+        gray_fill = self._get_gray_fill()
+
+        # Column letters for formula use
+        col_b = self._get_col_letter(Config.COL_START_FT)   # B: Start
+        col_c = self._get_col_letter(Config.COL_END_FT)     # C: End
+        col_d = self._get_col_letter(4)                      # D: Midpoint (gray)
+
         max_midpoint = 0
 
         current_row = data_start_row
@@ -217,12 +227,17 @@ class ResultsGenerator:
             cell_end.value = end_rounded
             cell_end.alignment = center_align
 
-            # --- Column D (gray): Midpoint average of start and end ---
+            # --- Column D (gray): Midpoint as Excel formula, gray fill, centre aligned ---
+            cell_mid = ws_new.cell(row=current_row, column=4)
+            cell_mid.value = f"=({col_b}{current_row}+{col_c}{current_row})/2"
+            cell_mid.fill = gray_fill
+            cell_mid.alignment = center_align
+
+            # Track max midpoint for chart x-axis (use calculated value)
             if start_rounded is not None and end_rounded is not None:
-                midpoint = round((start_rounded + end_rounded) / 2, decimals)
-                ws_new.cell(row=current_row, column=4).value = midpoint
-                if midpoint > max_midpoint:
-                    max_midpoint = midpoint
+                midpoint_val = (start_rounded + end_rounded) / 2
+                if midpoint_val > max_midpoint:
+                    max_midpoint = midpoint_val
 
             # --- Column E: DRI Thickness ---
             ws_new.cell(row=current_row, column=Config.COL_DRI_THICKNESS).value = self._convert_thickness(
@@ -232,17 +247,22 @@ class ResultsGenerator:
             ws_new.cell(row=current_row, column=Config.COL_NOM_THICKNESS).value = self._convert_thickness(
                 seg.get('nom_thickness'))
 
-            # --- Column G: Asset ID (if required) ---
+            # --- Column G: Asset ID (centre aligned, if required) ---
             if Config.REQUIRE_ASSET_IDS:
-                ws_new.cell(row=current_row, column=Config.COL_ASSET_ID).value = seg.get('pipe_asset_id')
+                cell_asset = ws_new.cell(row=current_row, column=Config.COL_ASSET_ID)
+                cell_asset.value = seg.get('pipe_asset_id')
+                cell_asset.alignment = center_align
 
-            # --- Column G or H: Pipe Type per step ---
+            # --- Column G or H: Pipe Type per step (centre aligned) ---
             pipe_type_val = self._format_step_pipe_type(seg.get('pipe_type_step'))
-            ws_new.cell(row=current_row, column=pipe_type_col).value = pipe_type_val
+            cell_pt = ws_new.cell(row=current_row, column=pipe_type_col)
+            cell_pt.value = pipe_type_val
+            cell_pt.alignment = center_align
 
             current_row += 1
 
         # --- UPDATE CHART ---
+        # If asset IDs required, shift chart left anchor by 1 column so pipe type col is visible
         ordered_segments = site_data.get('ordered_segments', '')
         ChartManager.update_chart_range(
             ws_new,
@@ -250,7 +270,8 @@ class ResultsGenerator:
             chart_title=ordered_segments,
             data_start_row=data_start_row,
             row_offset=num_rows_to_insert,
-            x_axis_max=max_midpoint
+            x_axis_max=max_midpoint,
+            shift_chart_col=1 if Config.REQUIRE_ASSET_IDS else 0
         )
 
     def save(self, input_site_names):

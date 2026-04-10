@@ -312,6 +312,48 @@ class DataLoader:
             pass
         return {}
 
+    def _derive_access_points_from_seg_df(self, df_seg_meta, segment_codes):
+        """
+        Fallback: build AP dict from seg_df when no dedicated sheet exists in segGroups.
+        Parses access_point_1/ap_1_loc, access_point_2/ap_2_loc, and
+        ex_access_point/ap_ex_loc (comma-separated lists) for all segments in the group.
+        Returns {ap_name: position} with duplicates resolved by first occurrence.
+        """
+        group_segs = df_seg_meta[df_seg_meta['Unnamed: 0'].isin(segment_codes)]
+        ap_dict = {}
+
+        for _, row in group_segs.iterrows():
+            # Parse ex_access_point / ap_ex_loc (may be comma-separated lists)
+            ex_aps = row.get('ex_access_point')
+            ex_locs = row.get('ap_ex_loc')
+            if pd.notna(ex_aps) and pd.notna(ex_locs):
+                names = [n.strip() for n in str(ex_aps).split(',')]
+                try:
+                    locs = [float(x.strip()) for x in str(ex_locs).split(',')]
+                except ValueError:
+                    locs = []
+                for name, loc in zip(names, locs):
+                    if name and name not in ap_dict:
+                        ap_dict[name] = loc
+                continue  # ex_access_point covers all APs for this segment
+
+            # Fallback to individual ap_1 / ap_2 columns
+            ap1 = row.get('access_point_1')
+            loc1 = row.get('ap_1_loc')
+            if pd.notna(ap1) and pd.notna(loc1):
+                name = self._format_ap_name(ap1)
+                if name and name not in ap_dict:
+                    ap_dict[name] = float(loc1)
+
+            ap2 = row.get('access_point_2')
+            loc2 = row.get('ap_2_loc')
+            if pd.notna(ap2) and pd.notna(loc2):
+                name = self._format_ap_name(ap2)
+                if name and name not in ap_dict:
+                    ap_dict[name] = float(loc2)
+
+        return ap_dict
+
     def _format_ap_name(self, val):
         """Parse access point names as strings, removing decimal points from numeric values."""
         if val is None:
@@ -501,6 +543,8 @@ class DataLoader:
 
             # --- E. Load Access Points ---
             ap_positions_dict = self.load_access_points_for_group(group_id)
+            if not ap_positions_dict:
+                ap_positions_dict = self._derive_access_points_from_seg_df(df_seg_meta, segment_codes)
             unique_aps = sorted([(pos, name) for name, pos in ap_positions_dict.items()], key=lambda x: x[0])
 
             if not unique_aps:

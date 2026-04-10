@@ -4,8 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa60da94-350b-4d05-8724-c0b321a8b159" name="Changes" comment="Handle access points labelled with only numbers as Str rather than Float.">
+    <list default="true" id="aa60da94-350b-4d05-8724-c0b321a8b159" name="Changes" comment="Includes additional QOL improvements requested. Needs testing">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input/Master_Results_Skeleton.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/KW-Results-Gresham MS Team Test.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/KW-Results-MS Team.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/KW-Results-MS Test.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/KW-Results-fix.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/KW-Results-stable.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/old/KW-Results-Gresham - MS Team (2).xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/old/KW-Results-Gresham - MS Team.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/~$KW-Results-fix.xlsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/chart_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/chart_manager.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/data_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/data_loader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/generator.py" afterDir="false" />
@@ -111,7 +120,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771872923069</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Includes additional QOL improvements requested. Needs testing">
+      <option name="closed" value="true" />
+      <created>1771873902432</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1771873902432</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -121,6 +138,7 @@
     <MESSAGE value="Checks first for pipe_asset_id requirement from user before checking for presence of file.&#10;&#10;Next step, remove the need for pipe asset IDs" />
     <MESSAGE value="Added better unit handling, updated pipe spec change logic." />
     <MESSAGE value="Handle access points labelled with only numbers as Str rather than Float." />
-    <option name="LAST_COMMIT_MESSAGE" value="Handle access points labelled with only numbers as Str rather than Float." />
+    <MESSAGE value="Includes additional QOL improvements requested. Needs testing" />
+    <option name="LAST_COMMIT_MESSAGE" value="Includes additional QOL improvements requested. Needs testing" />
   </component>
 </project>
