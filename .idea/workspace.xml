@@ -4,20 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa60da94-350b-4d05-8724-c0b321a8b159" name="Changes" comment="Includes additional QOL improvements requested. Needs testing">
+    <list default="true" id="aa60da94-350b-4d05-8724-c0b321a8b159" name="Changes" comment="Includes additional QOL improvements requested. &#10;&#10;Needs more fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/input/Master_Results_Skeleton.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/KW-Results-Gresham MS Team Test.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/KW-Results-MS Team.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/KW-Results-MS Test.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/KW-Results-fix.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/KW-Results-stable.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/old/KW-Results-Gresham - MS Team (2).xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/old/KW-Results-Gresham - MS Team.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/~$KW-Results-fix.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/chart_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/chart_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/data_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/data_loader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/generator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +27,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;akarpe-kenwavesolutions&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/akarpe-kenwavesolutions/KW-ResultsFileGenerator.git&quot;,
+    &quot;accountId&quot;: &quot;2974fac4-e92b-4293-bd07-f8dc5eb6f244&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
 }</component>
@@ -128,7 +133,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771873902432</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Includes additional QOL improvements requested. &#10;&#10;Needs more fixes">
+      <option name="closed" value="true" />
+      <created>1775825426777</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1775825426777</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -139,6 +152,7 @@
     <MESSAGE value="Added better unit handling, updated pipe spec change logic." />
     <MESSAGE value="Handle access points labelled with only numbers as Str rather than Float." />
     <MESSAGE value="Includes additional QOL improvements requested. Needs testing" />
-    <option name="LAST_COMMIT_MESSAGE" value="Includes additional QOL improvements requested. Needs testing" />
+    <MESSAGE value="Includes additional QOL improvements requested. &#10;&#10;Needs more fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Includes additional QOL improvements requested. &#10;&#10;Needs more fixes" />
   </component>
 </project>

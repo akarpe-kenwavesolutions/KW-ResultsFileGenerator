@@ -82,14 +82,14 @@ class Config:
             cls.PROJECT_DIR = os.path.join(cls.PROJECTS_ROOT, project_identifier)
         else:
             if not os.path.exists(cls.PROJECTS_ROOT):
-                cls.PROJECTS_ROOT = os.path.join(cls.BASE_DIR, 'input')
+                cls.PROJECTS_ROOT = os.path.join(cls.BASE_DIR, 'projects')
             candidates = [d for d in os.listdir(cls.PROJECTS_ROOT) if project_identifier.lower() in d.lower()]
             if len(candidates) == 1:
                 cls.PROJECT_DIR = os.path.join(cls.PROJECTS_ROOT, candidates[0])
             else:
                 raise FileNotFoundError("Project not found")
 
-        cls.INPUT_DIR = os.path.join(cls.PROJECT_DIR, 'input')
+        cls.INPUT_DIR = os.path.join(cls.PROJECT_DIR, 'Dataframes')
         cls.OUTPUT_DIR = os.path.join(cls.PROJECT_DIR, 'output')
         if not os.path.exists(cls.OUTPUT_DIR):
             os.makedirs(cls.OUTPUT_DIR)
@@ -97,7 +97,7 @@ class Config:
         cls.FILE_SEG_DF = cls.find_input_file(cls.INPUT_DIR, 'seg_df')
         cls.FILE_PIPE_ASSETS = cls.find_input_file(cls.INPUT_DIR, 'pipe_asset_ids_df')
         cls.FILE_SEG_GROUPS = cls.find_input_file(cls.INPUT_DIR, 'segGroups', extensions=['.xlsx'])
-        cls.TEMPLATE_PATH = cls.find_input_file(cls.INPUT_DIR, 'template', extensions=['.xlsx', '.xlsm'])
+        cls.TEMPLATE_PATH = os.path.join(cls.BASE_DIR, 'src', 'Master_Results_Skeleton_Template.xlsx')
 
     @classmethod
     def find_input_file(cls, directory, keyword, extensions=['.csv']):

@@ -33,7 +33,7 @@ class ResultsGenerator:
 
     def load_template(self):
         if not self.template_path:
-            raise FileNotFoundError(f"Template file not found in {Config.INPUT_DIR}")
+            raise FileNotFoundError(f"Template file not found: {Config.TEMPLATE_PATH}")
         print(f"\nLoading template: {os.path.basename(self.template_path)}...")
         self.wb = openpyxl.load_workbook(self.template_path)
         self.ws_master = self.wb[self.wb.sheetnames[0]]

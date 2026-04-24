@@ -6,7 +6,7 @@ from config import Config
 
 def main():
     print("=" * 60)
-    print("         PIPELINE RESULTS GENERATOR          ")
+    print("         KW RESULTS FILE TEMPLATE GENERATOR          ")
     print("=" * 60)
 
     # 1. Project Setup

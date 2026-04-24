@@ -1,3 +1,4 @@
+import math
 import pandas as pd
 import os
 import re
@@ -299,8 +300,14 @@ class DataLoader:
         if not self.seg_groups_path: return {}
         try:
             xls = pd.ExcelFile(self.seg_groups_path)
-            if group_name in xls.sheet_names:
-                df_aps = pd.read_excel(self.seg_groups_path, sheet_name=group_name)
+            # Exact match first; fall back to fuzzy match where invalid Excel chars
+            # (e.g. ':') may have been replaced with '-' when the sheet was written.
+            def _normalize(s):
+                return re.sub(r'[\\/*?:\[\]"]', '-', s)[:31]
+            resolved = group_name if group_name in xls.sheet_names else next(
+                (s for s in xls.sheet_names if _normalize(s) == _normalize(group_name)), None)
+            if resolved:
+                df_aps = pd.read_excel(self.seg_groups_path, sheet_name=resolved)
                 ap_dict = {}
                 for _, row in df_aps.iterrows():
                     ap_name = row.get('ap_name')
@@ -579,7 +586,14 @@ class DataLoader:
                 'segments': []
             }
 
-            num_steps = int(np.ceil(total_end_meters / self.INCREMENT_METERS))
+            num_steps = int(total_end_meters / self.INCREMENT_METERS)
+
+            # Half-spacing tolerance to catch APs rounded just past the last segment's end
+            round_factor = 0.5 * self.INCREMENT_METERS
+
+            # Only add an extra step if the last AP falls beyond what in_last_range can reach
+            if total_end_meters > num_steps * self.INCREMENT_METERS + round_factor:
+                num_steps += 1
 
             # Find Asset Columns
             asset_id_col = None
@@ -600,10 +614,11 @@ class DataLoader:
 
                 # 1. Access Point Labels
                 slice_labels = []
+                is_last = i == num_steps - 1
                 for ap_pos, ap_name in unique_aps:
-                    if start_m <= ap_pos < end_m:
-                        slice_labels.append(ap_name)
-                    elif abs(ap_pos - end_m) < 0.05 and abs(ap_pos - total_end_meters) < 0.05:
+                    in_range = start_m <= ap_pos < end_m
+                    in_last_range = is_last and start_m <= ap_pos <= end_m + round_factor
+                    if in_range or in_last_range:
                         slice_labels.append(ap_name)
 
                 # 2. Pipe Asset ID
@@ -641,32 +656,6 @@ class DataLoader:
                 }
 
                 site_dict['segments'].append(segment_slice)
-
-            # --- I. Ensure last AP label is placed ---
-            if site_dict['segments'] and unique_aps:
-                last_ap_name = self._format_ap_name(unique_aps[-1][1])
-                last_ap_pos = unique_aps[-1][0]
-
-                placed = False
-                for s in site_dict['segments']:
-                    if s['access_point_label'] and last_ap_name in str(s['access_point_label']):
-                        placed = True
-                        break
-
-                if not placed:
-                    # Find segment whose range contains the last AP position
-                    for s in site_dict['segments']:
-                        if s['start_m'] <= last_ap_pos <= s['end_m']:
-                            existing = s['access_point_label']
-                            s['access_point_label'] = f"{existing} / {last_ap_name}" if existing else last_ap_name
-                            placed = True
-                            break
-
-                    # Fallback: last segment
-                    if not placed:
-                        s = site_dict['segments'][-1]
-                        existing = s['access_point_label']
-                        s['access_point_label'] = f"{existing} / {last_ap_name}" if existing else last_ap_name
 
             grouped_data.append(site_dict)
 
